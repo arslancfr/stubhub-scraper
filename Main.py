@@ -15,7 +15,15 @@ def parse_price(text):
 
 async def scrape_event(event_url: str, zones_expected=None):
     async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=True, args=["--disable-blink-features=AutomationControlled"])
+       browser = await pw.chromium.launch(
+    headless=True,
+    args=[
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-blink-features=AutomationControlled"
+    ],
+)
+
         ctx = await browser.new_context(locale="en-GB", timezone_id="Europe/London")
         page = await ctx.new_page()
         await page.goto(event_url, wait_until="domcontentloaded")
@@ -66,3 +74,4 @@ async def root(req: Request):
         return JSONResponse([], status_code=200)
     data = await scrape_event(event_url, zones)
     return JSONResponse(data, status_code=200)
+
